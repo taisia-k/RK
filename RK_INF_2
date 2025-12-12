@@ -1,0 +1,51 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class BankAccount {
+protected:
+    string acc;
+    string name;
+    double bal;
+
+public:
+    BankAccount(string a, string n, double b) : acc(a), name(n), bal(b) {}
+    void deposit(double x) {
+        if (x > 0) bal += x;
+    }
+    void withdraw(double x) {
+        if (x > 0 && x <= bal) bal -= x;
+        else cout << "недостаточно средств" << endl;
+    }
+    double getBal() const {
+        return bal;
+    }
+};
+
+class SavingsAccount : public BankAccount {
+    double rate;
+
+public:
+    SavingsAccount(string a, string n, double b, double r)
+        : BankAccount(a, n, b), rate(r) {}
+    void addPercent() {
+        bal += bal * rate / 100;
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+    BankAccount a1("12345", "A", 1000);
+    SavingsAccount a2("67890", "B", 2000, 5);
+
+    a1.deposit(500);
+    a1.withdraw(200);
+
+    a2.deposit(1000);
+    a2.addPercent();
+
+    cout << a1.getBal() << endl;
+    cout << a2.getBal() << endl;
+    return 0;
+}
