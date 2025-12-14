@@ -1,0 +1,286 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
+#include <memory>
+#include <algorithm>
+#include <map>
+#include <limits>
+
+using namespace std;
+
+static string tr(string s){
+    while(!s.empty() && isspace(s.front())) s.erase(s.begin());
+    while(!s.empty() && isspace(s.back())) s.pop_back();
+    return s;
+}
+
+static vector<string> sp(const string& s, char d){
+    vector<string> r; string x; stringstream ss(s);
+    while(getline(ss,x,d)) r.push_back(x);
+    return r;
+}
+
+static double toD(string s){
+    for(char& c: s) if(c==',') c='.';
+    return stod(tr(s));
+}
+
+static int toI(string s){
+    return stoi(tr(s));
+}
+
+static string jn(const vector<string>& v, const string& d){
+    string r;
+    for(size_t i=0;i<v.size();++i){
+        r += v[i];
+        if(i+1<v.size()) r += d;
+    }
+    return r;
+}
+
+class Animal{
+protected:
+    string nm, spc;
+    int ag;
+    vector<string> ev;
+public:
+    Animal(string n,string s,int a):nm(n),spc(s),ag(a){}
+    virtual ~Animal()=default;
+
+    string name() const { return nm; }
+    string species() const { return spc; }
+    int age() const { return ag; }
+    const vector<string>& events() const { return ev; }
+
+    void setSp(string s){ spc=s; }
+    void setAg(int a){ ag=a; }
+    void addEv(string e){ ev.push_back(e); }
+
+    virtual string tp() const = 0;
+    virtual string pr() const = 0;
+    virtual void out() const = 0;
+};
+
+class Bird : public Animal{
+    double ws, v;
+public:
+    Bird(string n,string s,int a,double w,double spd)
+        :Animal(n,s,a),ws(w),v(spd){}
+
+    double spd() const { return v; }
+    void set(double w,double spd){ ws=w; v=spd; }
+
+    string tp() const override { return "Bird"; }
+    string pr() const override {
+        ostringstream os; os<<ws<<":"<<v; return os.str();
+    }
+
+    void out() const override{
+        cout<<"Птица: "<<nm
+            <<" | вид: "<<spc
+            <<" | возраст: "<<ag
+            <<" | размах: "<<ws
+            <<" | скорость: "<<v
+            <<" | события: "<<(ev.empty()?"-":jn(ev," | "))
+            <<"\n";
+    }
+};
+
+class Mammal : public Animal{
+    string fur;
+    double ms;
+public:
+    Mammal(string n,string s,int a,string f,double m)
+        :Animal(n,s,a),fur(f),ms(m){}
+
+    void set(string f,double m){ fur=f; ms=m; }
+
+    string tp() const override { return "Mammal"; }
+    string pr() const override {
+        ostringstream os; os<<fur<<"-"<<ms; return os.str();
+    }
+
+    void out() const override{
+        cout<<"Млекопитающее: "<<nm
+            <<" | вид: "<<spc
+            <<" | возраст: "<<ag
+            <<" | шерсть: "<<fur
+            <<" | масса: "<<ms
+            <<" | события: "<<(ev.empty()?"-":jn(ev," | "))
+            <<"\n";
+    }
+};
+
+static shared_ptr<Animal> parseLn(const string& ln){
+    auto p = sp(ln,';');
+
+    string tp = tr(p[0]);
+    string nm = tr(p[1]);
+    string spc = tr(p[2]);
+    int ag = toI(p[3]);
+    string pr = tr(p[4]);
+    string es = (p.size()>5 ? tr(p[5]) : "");
+
+    vector<string> ev;
+    if(!es.empty()) ev = sp(es,'|');
+
+    if(tp=="Bird"){
+        auto q = sp(pr,':');
+        double ws = toD(q[0]);
+        double v  = (q.size()>1 ? toD(q[1]) : 0);
+        auto b = make_shared<Bird>(nm,spc,ag,ws,v);
+        for(auto &x: ev) b->addEv(x);
+        return b;
+    }
+
+    if(tp=="Mammal"){
+        auto q = sp(pr,'-');
+        string fur = q[0];
+        double ms  = (q.size()>1 ? toD(q[1]) : 0);
+        auto m = make_shared<Mammal>(nm,spc,ag,fur,ms);
+        for(auto &x: ev) m->addEv(x);
+        return m;
+    }
+
+    return nullptr;
+}
+
+static void load(const string& fn, vector<shared_ptr<Animal>>& a){
+    ifstream f(fn);
+    a.clear();
+    string ln;
+    while(getline(f,ln)){
+        if(ln.empty()) continue;
+        a.push_back(parseLn(ln));
+    }
+}
+
+static void save(const string& fn, const vector<shared_ptr<Animal>>& a){
+    ofstream f(fn);
+    for(auto &x: a){
+        f<<x->tp()<<";"<<x->name()<<";"<<x->species()<<";"
+         <<x->age()<<";"<<x->pr()<<";"<<jn(x->events(),"|")<<"\n";
+    }
+}
+
+static void show(const vector<shared_ptr<Animal>>& a){
+    for(auto &x: a) x->out();
+}
+
+static int pick(const vector<shared_ptr<Animal>>& a){
+    for(size_t i=0;i<a.size();++i){
+        cout<<(i+1)<<") ";
+        a[i]->out();
+    }
+    int k; cin>>k;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    return k-1;
+}
+
+static string rdS(const string& p){
+    cout<<p;
+    string s; getline(cin,s);
+    return tr(s);
+}
+
+static int rdI(const string& p){
+    cout<<p;
+    int x; cin>>x;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    return x;
+}
+
+static double rdD(const string& p){
+    cout<<p;
+    string s; getline(cin,s);
+    return toD(s);
+}
+
+static void addObj(vector<shared_ptr<Animal>>& a){
+    int t = rdI("Тип (1 — Bird, 2 — Mammal): ");
+    string nm = rdS("Имя: ");
+    string spc = rdS("Вид: ");
+    int ag = rdI("Возраст: ");
+    string es = rdS("События (через |): ");
+
+    vector<string> ev;
+    if(!es.empty()) ev = sp(es,'|');
+
+    if(t==1){
+        double ws = rdD("Размах: ");
+        double v  = rdD("Скорость: ");
+        auto b = make_shared<Bird>(nm,spc,ag,ws,v);
+        for(auto &x: ev) b->addEv(x);
+        a.push_back(b);
+    } else {
+        string fur = rdS("Шерсть: ");
+        double ms  = rdD("Масса: ");
+        auto m = make_shared<Mammal>(nm,spc,ag,fur,ms);
+        for(auto &x: ev) m->addEv(x);
+        a.push_back(m);
+    }
+}
+
+static void edit(Animal* p){
+    cout<<"1 — вид\n2 — возраст\n3 — событие\n4 — параметры\nВыбор: ";
+    int c; cin>>c;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if(c==1){
+        p->setSp(rdS("Новый вид: "));
+    } else if(c==2){
+        p->setAg(rdI("Новый возраст: "));
+    } else if(c==3){
+        p->addEv(rdS("Событие: "));
+    } else if(c==4){
+        if(auto b = dynamic_cast<Bird*>(p)){
+            double ws = rdD("Размах: ");
+            double v  = rdD("Скорость: ");
+            b->set(ws,v);
+        } else if(auto m = dynamic_cast<Mammal*>(p)){
+            string fur = rdS("Шерсть: ");
+            double ms  = rdD("Масса: ");
+            m->set(fur,ms);
+        }
+    }
+}
+
+static void tasks(vector<shared_ptr<Animal>> a){
+    int cnt = count_if(a.begin(), a.end(), [](const auto& x){
+        return dynamic_cast<Mammal*>(x.get()) && x->age()>5;
+    });
+    cout<<"Млекопитающих старше 5 лет: "<<cnt<<"\n";
+
+    auto it = max_element(a.begin(), a.end(), [](const auto& x,const auto& y){
+        auto bx = dynamic_cast<Bird*>(x.get());
+        auto by = dynamic_cast<Bird*>(y.get());
+        if(!bx) return true;
+        if(!by) return false;
+        return bx->spd() < by->spd();
+    });
+    cout<<"Самая быстрая птица:\n";
+    (*it)->out();
+}
+
+int main(){
+    vector<shared_ptr<Animal>> a;
+    string fn = "animals.txt";
+
+    while(true){
+        cout<<"\n1 — загрузить\n2 — показать\n3 — добавить\n4 — изменить\n5 — удалить\n6 — сохранить\n7 — задания\n0 — выход\nВыбор: ";
+        int c; cin>>c;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        if(c==0) break;
+        if(c==1) load(fn,a);
+        if(c==2) show(a);
+        if(c==3) addObj(a);
+        if(c==4){ int i=pick(a); edit(a[i].get()); }
+        if(c==5){ int i=pick(a); a.erase(a.begin()+i); }
+        if(c==6) save(fn,a);
+        if(c==7) tasks(a);
+    }
+    return 0;
+}
