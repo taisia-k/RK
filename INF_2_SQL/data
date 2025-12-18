@@ -1,0 +1,39 @@
+INSERT INTO students (full_name, group_number) VALUES
+('А', 'ИУ1-11Б'),
+('Б', 'ИУ1-11Б'),
+('В', 'ИУ1-11Б'),
+('Г', 'ИУ1-11Б'),
+('Д', 'ИУ1-11Б'),
+('Е', 'ИУ1-11Б');
+
+INSERT INTO subjects (subject_name) VALUES
+('Математический анализ'),
+('Аналитическая геометрия'),
+('Информатика');
+
+INSERT INTO grades (student_id, subject_id, grade)
+SELECT s.student_id, sub.subject_id, 4
+FROM students s
+CROSS JOIN subjects sub;
+
+INSERT INTO attendance (student_id, date_attended, status) VALUES
+(1, '2025-12-01', true),
+(1, '2025-12-02', true),
+(2, '2025-12-01', false),
+(2, '2025-12-02', true),
+(3, '2025-12-01', true),
+(3, '2025-12-02', true),
+(4, '2025-12-01', true),
+(4, '2025-12-02', false),
+(5, '2025-12-01', true),
+(5, '2025-12-02', true),
+(6, '2025-12-01', false),
+(6, '2025-12-02', false);
+
+INSERT INTO notes (student_id, note_text) VALUES
+(1, 'Любит информатику'),
+(2, 'Нужна помощь по информатике'),
+(3, 'Редко посещает занятия по информатике'),
+(4, 'Отличник по всем предметам'),
+(5, 'Хорошо работает в команде'),
+(6, 'Прогресс по информатике');
