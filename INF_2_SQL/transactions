@@ -1,0 +1,25 @@
+BEGIN;
+
+INSERT INTO students (full_BEGIN;
+
+INSERT INTO students (full_name, group_number)
+VALUES ('K', 'ИУ1-11Б')
+RETURNING student_id;
+
+-- допустим вернулся id = 7
+INSERT INTO grades (student_id, subject_id, grade) VALUES
+(7, 1, 5),
+(7, 2, 4),
+(7, 3, 5);
+
+COMMIT;, group_number)
+VALUES ('K', 'ИУ1-11Б')
+RETURNING student_id;
+
+-- допустим вернулся id = 7
+INSERT INTO grades (student_id, subject_id, grade) VALUES
+(7, 1, 5),
+(7, 2, 4),
+(7, 3, 5);
+
+COMMIT;
