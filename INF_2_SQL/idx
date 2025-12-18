@@ -1,0 +1,5 @@
+CREATE INDEX idx_students_group ON students(group_number);
+
+CREATE INDEX idx_grades_student ON grades(student_id);
+
+CREATE INDEX idx_notes_text ON notes USING GIN (to_tsvector('russian', note_text));
