@@ -1,0 +1,34 @@
+SELECT *
+FROM students
+WHERE group_number = (
+    SELECT group_number FROM students WHERE student_id = 3
+)
+ORDER BY student_id
+LIMIT 5;
+
+
+SELECT *
+FROM student_avg_grades
+WHERE student_id = 1;
+
+
+SELECT AVG(g.grade) AS avg_grade
+FROM grades g
+JOIN subjects s ON g.subject_id = s.subject_id
+WHERE s.subject_name = 'Информатика';
+
+
+SELECT *
+FROM notes
+WHERE to_tsvector('russian', note_text)
+      @@ to_tsquery('russian', 'информатика');
+
+
+BEGIN;
+
+UPDATE attendance
+SET status = true
+WHERE student_id = 2
+  AND date_attended = '2025-12-01';
+
+COMMIT;
