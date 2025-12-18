@@ -1,0 +1,8 @@
+CREATE VIEW student_avg_grades AS
+SELECT
+    s.student_id,
+    s.full_name,
+    AVG(g.grade) AS avg_grade
+FROM students s
+JOIN grades g ON s.student_id = g.student_id
+GROUP BY s.student_id, s.full_name;
