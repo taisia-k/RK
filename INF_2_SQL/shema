@@ -1,0 +1,30 @@
+CREATE TABLE students (
+    student_id SERIAL PRIMARY KEY,
+    full_name TEXT NOT NULL,
+    group_number TEXT NOT NULL
+);
+
+CREATE TABLE subjects (
+    subject_id SERIAL PRIMARY KEY,
+    subject_name TEXT NOT NULL
+);
+
+CREATE TABLE grades (
+    grade_id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES students(student_id),
+    subject_id INT REFERENCES subjects(subject_id),
+    grade INT CHECK (grade BETWEEN 2 AND 5)
+);
+
+CREATE TABLE attendance (
+    attendance_id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES students(student_id),
+    date_attended DATE,
+    status BOOLEAN
+);
+
+CREATE TABLE notes (
+    note_id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES students(student_id),
+    note_text TEXT
+);
